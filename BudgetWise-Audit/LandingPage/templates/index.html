@@ -1,0 +1,219 @@
+  <!-- Xepo Chatbot Floating Button and Chat Window -->
+  <div id="xepo-chatbot">
+    <div id="xepo-help-tooltip" class="xepo-help-tooltip">Need Help!</div>
+    <div id="xepo-bot-btn" onclick="toggleXepoChat()" title="Chat with Xepo">
+      <span style="font-size: 2rem;">🤖</span>
+    </div>
+    <div id="xepo-chat-window">
+      <div id="xepo-chat-header">
+        <span>Xepo</span>
+        <button onclick="toggleXepoChat()" id="xepo-close-btn">×</button>
+      </div>
+      <div id="xepo-chat-body"></div>
+      <div id="xepo-chat-input-row">
+        <input type="text" id="xepo-chat-input" placeholder="Type your message..." onkeydown="if(event.key==='Enter'){sendXepoMessage();}">
+        <button onclick="sendXepoMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Budgetwise - AI Expense Forecasting</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">AI Expense Forecasting</div>
+      <ul class="nav-links">
+        <li><a href="#home">HOME</a></li>
+        <li><a href="#about">ABOUT</a></li>
+        <li><a href="#collaborators">Collaborators</a></li>
+        <li><a href="#contact">CONTACTS</a></li>
+  <li><a href="/signup" class="login-btn">Login / SignUp</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Typing Animation -->
+  <div class="typing-wrapper">
+    <h2 class="typing-text"></h2>
+  </div>
+
+  <!-- Home Section -->
+  <section id="home" class="hero">
+    <div class="bubbles">
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+      <div><span class="dot"></span></div>
+    </div>
+
+    <div class="hero-content">
+      <h1>Let’s take you to Journey with</h1>
+      <br>
+      <h2>Budgetwise AI Expense Forecasting</h2>
+      <p>An AI based Expense Forecasting Project that helps users to get suggestions from AI model about spending their money on expenses. It will help you before spending your money any costly product as your Parent suggest!</p>
+    </div>
+    <div class="hero-design">
+      <canvas id="expenseChart"></canvas>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about">
+    <!-- Bubble effect removed from about section -->
+    <h2>About</h2>
+    <br>
+    <p>
+      BudgetWise is an AI-powered expense forecasting tool that helps individuals and businesses manage their finances more effectively. By analyzing past spending patterns with machine learning models such as ARIMA, Prophet, Random Forest, and LSTM, it provides accurate predictions of future expenses. The platform offers a simple interface to record expenses, view summaries, and explore visual charts for better insights. With smart alerts and adaptive learning, BudgetWise makes financial planning easier, helping users avoid overspending and build better saving habits.
+    </p>
+  </section>
+
+  <!-- Collaborators Section -->
+  <section id="collaborators" class="collaborators">
+    <h2>COLLABORATORS</h2>
+    <div class="collaborator-cards">
+      <div class="collaborator-card">
+        <h3>Aninda Sau</h3>
+        <p>Team Lead. Frontend, dataset creation, and model building. Chatbot Creation</p>
+      </div>
+      <div class="collaborator-card">
+        <h3>Vishalini P</h3>
+        <p>Model building. Focused on developing and optimizing the core machine learning algorithms for expense prediction.</p>
+      </div>
+      <div class="collaborator-card">
+        <h3>Jyothi Sri Lakshmi Kuna</h3>
+        <p>Frontend design. Crafted the visual layout and ensured a seamless user experience across the platform.</p>
+      </div>
+      <div class="collaborator-card">
+        <h3>Aishwariya</h3>
+        <p>Data Entry. Helps to managed data collection.</p>
+      </div>
+      <div class="collaborator-card">
+        <h3>Aman Kumar</h3>
+        <p>Frontend. Help to Create UI design</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact">
+    <h2>Contact Us</h2>
+    <div class="social-icons">
+      <a href="mailto:anindasau@gmail.com" target="_blank" title="Gmail">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/gmail-new.png" alt="Gmail"/>
+      </a>
+      <a href="https://github.com/ANINDASAU/Budgetwise-Forcasting-Infosys" target="_blank" title="GitHub">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/github.png" alt="GitHub"/>
+      </a>
+      <a href="https://t.me/+PhWi8MybUpdmYzNl" target="_blank" title="Telegram">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/telegram.png" alt="Telegram"/>
+      </a>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script>
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener("click", function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute("href")).scrollIntoView({
+          behavior: "smooth"
+        });
+      });
+    });
+
+    // Chart.js
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const expenseChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            label: 'Food',
+            data: [500, 700, 800, 600, 900, 1000],
+            borderColor: '#ff80ff',
+            backgroundColor: 'rgba(255, 128, 255, 0.2)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Transport',
+            data: [300, 400, 350, 500, 600, 650],
+            borderColor: '#80d0ff',
+            backgroundColor: 'rgba(128, 208, 255, 0.2)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Entertainment',
+            data: [200, 250, 300, 450, 400, 500],
+            borderColor: '#7f5af0',
+            backgroundColor: 'rgba(127, 90, 240, 0.2)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#fff' } } },
+        scales: {
+          x: { ticks: { color: '#fff' } },
+          y: { ticks: { color: '#fff' } }
+        }
+      }
+    });
+
+    // Typing effect
+    const text = "WELCOME to the Journey of Expense Forecasting";
+    const typingText = document.querySelector(".typing-text");
+    let i = 0;
+    let isDeleting = false;
+
+    function typeEffect() {
+      if (!isDeleting && i <= text.length) {
+        typingText.textContent = text.substring(0, i++);
+      } else if (isDeleting && i >= 0) {
+        typingText.textContent = text.substring(0, i--);
+      }
+
+      if (i === text.length + 1) {
+        isDeleting = true;
+        setTimeout(typeEffect, 1500); 
+        return;
+      } else if (i < 0) {
+        isDeleting = false;
+        setTimeout(typeEffect, 800); 
+        return;
+      }
+
+      setTimeout(typeEffect, isDeleting ? 60 : 100);
+    }
+
+    typeEffect();
+  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register here</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff80ff, #7f5af0, #80d0ff);
+            background-size: 300% 300%;
+            animation: gradientMove 12s ease infinite;
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .register-box {
+            background: rgba(30, 30, 40, 0.97);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37), 0 1.5px 8px 0 rgba(127,90,240,0.18);
+            padding: 3.5rem 2.5rem 2rem 2.5rem;
+            width: 420px;
+            max-width: 95vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .register-box h2 {
+            margin-bottom: 2rem;
+            color: #ffd6ff;
+            font-size: 2.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .register-box form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .register-box label {
+            margin-bottom: 0.3rem;
+            color: #e0e0e0;
+            font-size: 1.05rem;
+        }
+        .register-box input, .register-box select {
+            margin-bottom: 1.2rem;
+            padding: 0.8rem;
+            border: 1.5px solid #7f5af0;
+            border-radius: 8px;
+            font-size: 1.08rem;
+            background: #23233a;
+            color: #fff;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .register-box input:focus, .register-box select:focus {
+            border: 1.5px solid #ff80ff;
+        }
+        .register-box button {
+            background: linear-gradient(90deg, #7f5af0 60%, #ff80ff 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem;
+            font-size: 1.13rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 0.7rem;
+            box-shadow: 0 2px 8px 0 rgba(127,90,240,0.10);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .register-box button:hover {
+            background: linear-gradient(90deg, #ff80ff 60%, #7f5af0 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .register-box .bottom-text {
+            margin-top: 1.2rem;
+            font-size: 1.01rem;
+            color: #bdbdbd;
+        }
+        .register-box .bottom-text a {
+            color: #ff80ff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .register-box .bottom-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-box">
+        <h2>Register here</h2>
+        <form method="POST" action="/signup">
+            <label for="username">User Name</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+
+            <button type="submit">Submit</button>
+        </form>
+        <div class="bottom-text">
+            Already Register! Click here, <a href="/login">Login</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,3 @@
+"""
+FinSight AI — Config Package
+"""

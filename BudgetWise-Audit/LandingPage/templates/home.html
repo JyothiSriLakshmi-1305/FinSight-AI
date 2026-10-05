@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetWise Pro - Smart Financial Planner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar" id="navBar">
+        <div class="nav-content">
+            <div class="logo">💰 BudgetApna</div>
+            <div class="nav-links">
+                <button onclick="showPage('dashboard')">📊 Dashboard</button>
+                <button onclick="showPage('expenses')">💳 Expenses</button>
+                <button onclick="showPage('reports')">📈 Reports</button>
+                <button id="chatbotNavBtn" class="chatbot-nav-btn">🤖 Chatbot</button>
+            </div>
+            <div class="profile-menu-container">
+                <div class="profile-icon" id="profileIcon" onclick="toggleProfileDropdown()">
+                    <img src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&rounded=true" alt="Profile" style="width:36px;height:36px;border-radius:50%;cursor:pointer;">
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <button onclick="editUsername()">Edit Username</button>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+        <!-- XEPO Chatbot Modal -->
+            <div id="xepol-chatbot-modal" class="xepol-chatbot-modal">
+                <div id="xepol-chatbot-arrow" class="xepol-chatbot-arrow"></div>
+                <div id="xepol-chatbot-box" class="xepol-chatbot-box">
+                    <div class="xepol-chatbot-header">
+                        <span style="font-weight:700;font-size:1.2rem;">XepoL</span>
+                        <button id="xepol-chatbot-close" class="xepol-chatbot-close">×</button>
+                    </div>
+                    <div id="xepol-chatbot-body" class="xepol-chatbot-body"></div>
+                    <div class="xepol-chatbot-input-row">
+                        <input type="text" id="xepol-chatbot-input" placeholder="Type your message..." autocomplete="off">
+                        <button id="xepol-chatbot-send">Send</button>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Dashboard Page -->
+    <div class="page active" id="dashboardPage">
+
+        <!-- User Budget Input Box -->
+    <div class="card budget-input-card" style="padding: 40px 50px 30px 50px; margin-bottom: 35px;">
+            <h2 style="color: #667eea; text-align: center; font-weight: 800; margin-bottom: 25px;">📝 Give your Details of your budget and expense</h2>
+            <form id="userBudgetForm" class="expense-form" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 18px;">
+                <div class="form-group">
+                    <label for="inputMonth">Enter the Month</label>
+                    <input type="text" id="inputMonth" class="form-control" placeholder="e.g. September" required>
+                </div>
+                <div class="form-group">
+                    <label for="inputBudget">Monthly Budget</label>
+                    <input type="number" id="inputBudget" class="form-control" placeholder="e.g. 120000" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Initial Expenses</label>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <input type="number" id="inputRent" class="form-control" placeholder="Rent" min="0" style="margin-bottom: 4px;">
+                        <input type="number" id="inputGrocery" class="form-control" placeholder="Grocery" min="0" style="margin-bottom: 4px;">
+                        <input type="number" id="inputTravel" class="form-control" placeholder="Travel" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputProduct">Product to Buy</label>
+                    <input type="text" id="inputProduct" class="form-control" placeholder="e.g. Laptop, Phone">
+                </div>
+                <div class="form-group">
+                    <label for="inputProductPrice">Product Price</label>
+                    <input type="number" id="inputProductPrice" class="form-control" placeholder="e.g. 50000" min="0">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1; text-align: right;">
+                    <button type="submit" class="btn btn-success" style="font-size: 18px; padding: 12px 32px;">Submit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card" style="padding: 50px;">
+            <h1 style="color: #333; margin-bottom: 40px; text-align: center; font-weight: 800;">
+                📊 Financial Dashboard
+            </h1>
+
+            <!-- Output: Monthly Budget and Initial Expense -->
+            <div class="stats-grid" style="margin-bottom: 0;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="stat-value" id="outputBudget">--</div>
+                    <div class="stat-label">Monthly Budget for <span id="outputMonth">--</span></div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="stat-value" id="outputInitialExpense">--</div>
+                    <div class="stat-label">Total Initial Expense (Rent+Grocery+Travel)</div>
+                </div>
+            </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalExpenses">₹98,000</div>
+                        <div class="stat-label">Total Monthly Expenses</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="stat-value" id="categoryCount">8</div>
+                        <div class="stat-label">Expense Categories</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="stat-value" id="dailyAverage">₹3,267</div>
+                        <div class="stat-label">Average Daily Spend</div>
+                    </div>
+                </div>
+
+                <!-- Budget Progress -->
+                <div class="budget-progress">
+                    <h3 style="color: #333; margin-bottom: 15px;">💰 Monthly Budget Progress</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Spent: ₹<span id="budgetSpent">98,000</span></span>
+                        <span>Budget: ₹<span id="budgetTotal">120,000</span></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="budgetProgress" style="width: 82%;"></div>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: #666;">
+                        ₹<span id="budgetRemaining">22,000</span> remaining this month
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 50px;">
+                    <h3 style="color: #333; margin-bottom: 30px;">🚀 Quick Actions</h3>
+                    
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+                        <button onclick="showPage('expenses')" class="btn" style="font-size: 18px; padding: 16px 32px;">
+                            💳 Manage Expenses
+                        </button>
+                        <button onclick="showPage('reports')" class="btn btn-secondary" style="font-size: 18px; padding: 16px 32px;">
+                            📈 View Reports
+                        </button>
+                        <button onclick="downloadPDF()" class="btn btn-success" style="font-size: 18px; padding: 16px 32px;">
+                            📋 Export Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <h4>💡 Smart Financial Tip</h4>
+                    <p>You're spending 82% of your monthly budget. Consider reviewing your Entertainment and Shopping categories to optimize savings!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Management Page -->
+        <div class="page" id="expensesPage">
+            <div class="card" style="padding: 50px;">
+                <h1 style="color: #333; margin-bottom: 40px; text-align: center; font-weight: 800;">
+                    💳 Expense Management
+                </h1>
+
+                <!-- Add New Expense -->
+                <div class="expense-input-section">
+                    <h3 style="color: #333; margin-bottom: 25px;">➕ Add New Expense</h3>
+                    <div class="success-message" id="addExpenseSuccess">
+                        ✅ Expense added successfully!
+                    </div>
+                    <form class="expense-form" onsubmit="addExpense(event)">
+                        <div class="form-group">
+                            <label for="expenseCategory">Category</label>
+                            <select id="expenseCategory" class="form-control" required>
+                                <option value="">Select Category</option>
+                                <option value="Food">🍔 Food</option>
+                                <option value="Transport">🚗 Transport</option>
+                                <option value="Education">📚 Education</option>
+                                <option value="Loans">🏦 Loans</option>
+                                <option value="Rent">🏠 Rent</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Healthcare">🏥 Healthcare</option>
+                                <option value="Shopping">🛒 Shopping</option>
+                                <option value="Other">📝 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="expenseAmount">Amount (₹)</label>
+                            <input type="number" id="expenseAmount" class="form-control" 
+                                   placeholder="0" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn" style="width: 100%; font-size: 16px;">
+                                ➕ Add Expense
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Current Expenses -->
+                <div style="margin-top: 40px;">
+                    <h3 style="color: #333; margin-bottom: 25px;">📋 Current Month Expenses</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Percentage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expenseTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <button onclick="showPage('dashboard')" class="btn">
+                        🏠 Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div class="page" id="reportsPage">
+            <div class="card" style="padding: 50px;">
+                <h1 style="color: #333; margin-bottom: 40px; text-align: center; font-weight: 800;">
+                    📊 Advanced Reports & Analytics
+                </h1>
+
+                <!-- Summary Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="reportsTotalExpenses">₹98,000</div>
+                        <div class="stat-label">Total Monthly Expenses</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="stat-value" id="reportsHighestCategory">₹25,000</div>
+                        <div class="stat-label">Highest Category (Rent)</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="stat-value" id="reportsLowestCategory">₹5,000</div>
+                        <div class="stat-label">Lowest Category (Entertainment)</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-title">📊 Monthly Expenses - Interactive Bar Chart</div>
+                        <canvas id="barChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">🥧 Expense Distribution - Pie Chart</div>
+                        <canvas id="pieChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Export Actions -->
+                <div style="text-align: center; margin-top: 40px;">
+                    <h3 style="color: #333; margin-bottom: 25px;">📥 Export Reports</h3>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+                        <button onclick="downloadCSV()" class="btn btn-secondary" style="font-size: 18px; padding: 16px 32px;">
+                            📄 Download CSV
+                        </button>
+                        <button onclick="downloadPDF()" class="btn btn-success" style="font-size: 18px; padding: 16px 32px;">
+                            📋 Download PDF
+                        </button>
+                        <button onclick="showPage('dashboard')" class="btn" style="font-size: 18px; padding: 16px 32px;">
+                            🏠 Dashboard
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Insights -->
+                <div class="insight-card">
+                    <h4>🔍 AI-Powered Insights</h4>
+                    <ul id="insightsList">
+                        <li><strong>Rent</strong> takes up 26% of your total expenses - this is within the recommended 25-30% range</li>
+                        <li>Essential expenses (Rent + Food + Transport) account for ₹48,000 (49% of total)</li>
+                        <li>Your entertainment spending is 33% of your food budget - consider optimizing</li>
+                        <li>You're saving ₹22,000 monthly which is 18% of budget - excellent saving rate!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+# ========================================================
+# FinSight AI — .gitignore
+# ========================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets
+.env
+.env.local
+!.env.example
+
+# Local Database Files (keep sample CSV, ignore runtime SQLite binaries)
+data/*.db
+data/*.sqlite3
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+
+# Large Model Checkpoints & Serialized Weights (>50MB)
+models/*.h5
+models/*.keras
+*.pt
+*.pth
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+*.tmp
