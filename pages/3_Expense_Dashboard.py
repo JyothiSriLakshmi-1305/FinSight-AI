@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.database import init_db, get_user_transactions, get_user
 from src.spending_analytics import category_breakdown, monthly_trends, budget_analysis, payment_method_analysis, get_spending_summary
+from src.report_generator import compute_monthly_health_report, generate_monthly_pdf
 from config.settings import CURRENCY_SYMBOL
 
 st.set_page_config(page_title="Expense Dashboard — FinSight AI", page_icon="📊", layout="wide")
@@ -59,6 +60,49 @@ with col4:
         st.metric("Budget Utilization", f"{utilization:.1f}%")
     else:
         st.metric("Categories", transactions['category'].nunique())
+
+# === Monthly Financial Statement & PDF Export ===
+st.divider()
+st.subheader("📅 Monthly Financial Health Statement & PDF Export")
+
+available_months = sorted(transactions['date'].dt.to_period('M').astype(str).unique(), reverse=True)
+
+if available_months:
+    m_col1, m_col2 = st.columns([2, 1])
+    with m_col1:
+        selected_month = st.selectbox("Select Statement Month to Audit & Download:", available_months, index=0)
+    
+    report = compute_monthly_health_report(transactions, user, selected_month)
+    
+    if report:
+        with m_col2:
+            st.write("") # vertical alignment spacing
+            pdf_bytes = generate_monthly_pdf(report, user)
+            st.download_button(
+                label=f"📥 Download {selected_month} Statement (PDF)",
+                data=pdf_bytes,
+                file_name=f"FinSight_Statement_{selected_month}.pdf",
+                mime="application/pdf",
+                type="primary",
+                use_container_width=True
+            )
+        
+        # Display monthly scorecard
+        sc1, sc2, sc3, sc4 = st.columns(4)
+        with sc1:
+            st.metric("Month Expenditure", f"{CURRENCY_SYMBOL}{report['total_spent']:,.0f}")
+        with sc2:
+            st.metric("Monthly Budget", f"{CURRENCY_SYMBOL}{report['budget']:,.0f}")
+        with sc3:
+            net_bal = report['net_savings']
+            delta_label = "Surplus" if net_bal >= 0 else "Deficit"
+            st.metric("Net Balance", f"{CURRENCY_SYMBOL}{abs(net_bal):,.0f}", delta=f"{delta_label} ({report['utilization_pct']:.1f}% used)")
+        with sc4:
+            st.metric("Health Score", f"{report['health_score']}/100", delta=report['grade'])
+            
+        if report.get('anomalies'):
+            st.warning(f"⚠️ **{len(report['anomalies'])} Unusual Anomaly Detected in {selected_month}:** " + 
+                       ", ".join([f"{a['category']}: {CURRENCY_SYMBOL}{a['amount']:,.0f}" for a in report['anomalies']]))
 
 st.divider()
 

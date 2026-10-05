@@ -15,7 +15,7 @@ from src.financial_profile import build_profile
 from src.anomaly_detection import detect_anomalies, get_anomaly_summary
 from src.recurrence_analysis import get_recurrence_report, detect_recurring
 from src.genai_assistant import (
-    check_ollama_connection, build_financial_context,
+    get_ai_status, build_financial_context,
     explain_prediction as ai_explain_prediction,
     explain_recommendations as ai_explain_recs,
     financial_chat
@@ -29,7 +29,7 @@ init_db()
 st.markdown("""
 <div style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); padding: 2rem; border-radius: 16px; color: white; margin-bottom: 2rem;">
     <h1 style="background: linear-gradient(90deg, #a18cd1, #fbc2eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🤖 AI Financial Assistant</h1>
-    <p>Ask questions about your finances — powered by Llama 3.1 via Ollama</p>
+    <p>Ask questions about your finances — powered by Google Gemini AI with grounded financial analytics</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -37,19 +37,16 @@ if not st.session_state.get('user_id'):
     st.warning("⚠️ Please set up your profile first!")
     st.stop()
 
-# === Check Ollama Status ===
-ollama_connected = check_ollama_connection()
+# === Check AI Status (Gemini / Ollama) ===
+ai_status = get_ai_status()
 
-if ollama_connected:
-    st.success(f"✅ Connected to Ollama (Model: {GENAI_CONFIG['model']})")
+if ai_status["available"]:
+    st.success(f"✅ **{ai_status['message']}**")
 else:
-    st.warning(
-        "⚠️ **Ollama is not connected.** The assistant will use template-based responses. "
-        "To enable AI-powered responses, install Ollama and pull the model:\n\n"
-        "```bash\n"
-        "# Install Ollama from https://ollama.ai\n"
-        "ollama pull llama3.1\n"
-        "```"
+    st.info(
+        "💡 **Offline Rule-Based Mode Active.** The assistant is using local deterministic financial logic.\n\n"
+        "**To unlock real-time Gemini AI:** Open `.env` in the project folder and paste your free key:\n"
+        "`GEMINI_API_KEY=AIzaSy...` (from [Google AI Studio](https://aistudio.google.com/app/apikey))"
     )
 
 # === Build Financial Context ===

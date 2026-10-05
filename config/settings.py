@@ -5,13 +5,18 @@ Central configuration for paths, categories, thresholds, and constants.
 
 import os
 from pathlib import Path
-
 # === Paths ===
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = PROJECT_ROOT / "models"
 DB_PATH = DATA_DIR / "finsight.db"
 SAMPLE_DATA_PATH = DATA_DIR / "sample_transactions.csv"
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(PROJECT_ROOT / ".env")
+except ImportError:
+    pass
 
 # Ensure directories exist
 DATA_DIR.mkdir(exist_ok=True)
@@ -160,12 +165,15 @@ RECOMMENDATION_CONFIG = {
     "savings_suggestion_ratio": 0.10,  # Suggest 10% reduction for high categories
 }
 
-# === Ollama / GenAI Configuration ===
+# === GenAI Configuration (Google Gemini / Cloud API) ===
 GENAI_CONFIG = {
+    "provider": os.getenv("GENAI_PROVIDER", "gemini"),
+    "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
+    "gemini_model": os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     "host": os.getenv("OLLAMA_HOST", "http://localhost:11434"),
     "model": os.getenv("OLLAMA_MODEL", "llama3.1"),
     "max_tokens": 1000,
-    "temperature": 0.3,              # Low temperature for factual responses
+    "temperature": 0.3,              # Low temperature for factual, reliable financial responses
 }
 
 # === Currency ===
