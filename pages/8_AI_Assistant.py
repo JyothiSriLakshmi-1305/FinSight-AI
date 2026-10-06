@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.database import init_db, get_user_transactions, get_user
+from src.database import init_db, get_user_transactions, get_user, get_connection
 from src.financial_profile import build_profile
 from src.anomaly_detection import detect_anomalies, get_anomaly_summary
 from src.recurrence_analysis import get_recurrence_report, detect_recurring
@@ -33,9 +33,33 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Auto-detect or select profile if not currently in session
 if not st.session_state.get('user_id'):
-    st.warning("⚠️ Please set up your profile first!")
-    st.stop()
+    try:
+        conn = get_connection()
+        c = conn.cursor()
+        c.execute("SELECT id, username FROM users")
+        existing_users = c.fetchall()
+        conn.close()
+    except Exception:
+        existing_users = []
+        
+    if existing_users:
+        st.info("💡 **Select a profile to activate FinSight AI analysis:**")
+        col_sel, col_btn = st.columns([3, 1])
+        with col_sel:
+            user_dict = {u['username']: u['id'] for u in existing_users}
+            chosen_username = st.selectbox("Active Profile:", list(user_dict.keys()), index=0)
+        with col_btn:
+            st.write("") # vertical spacing
+            if st.button("Activate Profile", type="primary", use_container_width=True):
+                st.session_state.user_id = user_dict[chosen_username]
+                st.session_state.username = chosen_username
+                st.rerun()
+        st.stop()
+    else:
+        st.warning("⚠️ No profiles found. Please create one on the **User Profile** page first.")
+        st.stop()
 
 # === Check AI Status (Gemini / Ollama) ===
 ai_status = get_ai_status()
@@ -236,7 +260,7 @@ with st.expander("ℹ️ How the AI Assistant Works"):
     - ML forecast predictions (if generated)
     - Personalized recommendations
     
-    **Two modes:**
-    - 🟢 **Ollama Connected:** Full AI-powered responses via Llama 3.1
-    - 🟡 **Ollama Offline:** Template-based responses using your actual data
+    **Two operating modes:**
+    - 🟢 **Google Gemini Connected:** Real-time financial intelligence powered by Google Gemini
+    - 🟡 **Offline Mode:** Rule-based deterministic financial reasoning using your local SQLite data
     """)
