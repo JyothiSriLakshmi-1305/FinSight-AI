@@ -246,7 +246,8 @@ if st.session_state.get('forecast_results'):
     feature_names = results.get('feature_names', [])
     
     if best_model and feature_names:
-        model_type = 'rf' if 'random' in best_name.lower() or 'rf' in best_name.lower() else 'lr'
+        is_tree = any(k in best_name.lower() for k in ['random', 'rf', 'gradient', 'boosting'])
+        model_type = 'rf' if is_tree else 'lr'
         importance_df = get_feature_importance(best_model, feature_names, model_type)
         
         if importance_df is not None and not importance_df.empty:

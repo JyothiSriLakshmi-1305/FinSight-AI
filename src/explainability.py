@@ -78,17 +78,29 @@ def format_explanation(explanation: dict) -> str:
         
     return text
 
+from config.settings import CURRENCY_SYMBOL
+
 def get_model_summary(results: dict) -> str:
-    """Format model comparison results."""
+    """Format model comparison results safely across all column naming conventions."""
     comp_df = results.get('comparison_df', pd.DataFrame())
-    if comp_df.empty:
+    if comp_df is None or comp_df.empty:
         return "No model comparison available."
         
-    summary = "Model Performance Comparison:\n"
+    summary = "Model Performance Comparison Leaderboard:\n"
     for _, row in comp_df.iterrows():
-        summary += f"- {row['model_name']}: MAE = {row['mae']:.2f}, RMSE = {row['rmse']:.2f}, R² = {row['r2']:.2f}\n"
+        # Handle both uppercase and lowercase column names
+        name = row.get('Model') or row.get('model_name') or 'Model'
+        mae = row.get('MAE') if row.get('MAE') is not None else row.get('mae', 0.0)
+        rmse = row.get('RMSE') if row.get('RMSE') is not None else row.get('rmse', 0.0)
+        acc = row.get('Accuracy (%)') if row.get('Accuracy (%)') is not None else row.get('accuracy')
+        mape = row.get('MAPE (%)') if row.get('MAPE (%)') is not None else row.get('mape')
         
-    best = results.get('best_model', {}).get('model_name', 'Unknown')
-    summary += f"\nBest Model Selected: {best}"
+        acc_text = f" | Accuracy: {acc:.1f}%" if acc is not None else ""
+        mape_text = f" | MAPE: {mape:.1f}%" if mape is not None else ""
+        summary += f"- {name}: MAE = {CURRENCY_SYMBOL}{mae:,.0f}, RMSE = {CURRENCY_SYMBOL}{rmse:,.0f}{acc_text}{mape_text}\n"
+        
+    best_info = results.get('best_model', {})
+    best_name = best_info.get('model_name') or best_info.get('Model', 'Unknown')
+    summary += f"\n🏆 Top Model Selected: {best_name}"
     
     return summary
