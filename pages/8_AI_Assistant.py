@@ -26,6 +26,14 @@ from config.settings import CURRENCY_SYMBOL, GENAI_CONFIG
 st.set_page_config(page_title="AI Assistant — FinSight AI", page_icon="🤖", layout="wide")
 init_db()
 
+# Initialize session state keys
+if 'user_id' not in st.session_state:
+    st.session_state.user_id = None
+if 'username' not in st.session_state:
+    st.session_state.username = None
+if 'chat_messages' not in st.session_state:
+    st.session_state.chat_messages = []
+
 st.markdown("""
 <div style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); padding: 2rem; border-radius: 16px; color: white; margin-bottom: 2rem;">
     <h1 style="background: linear-gradient(90deg, #a18cd1, #fbc2eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🤖 AI Financial Assistant</h1>

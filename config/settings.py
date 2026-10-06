@@ -169,7 +169,7 @@ RECOMMENDATION_CONFIG = {
 GENAI_CONFIG = {
     "provider": os.getenv("GENAI_PROVIDER", "gemini"),
     "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
-    "gemini_model": os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+    "gemini_model": os.getenv("GEMINI_MODEL", "gemini-flash-latest"),
     "host": os.getenv("OLLAMA_HOST", "http://localhost:11434"),
     "model": os.getenv("OLLAMA_MODEL", "llama3.1"),
     "max_tokens": 1000,
