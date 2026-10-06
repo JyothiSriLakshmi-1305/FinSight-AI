@@ -193,29 +193,43 @@ if st.session_state.get('forecast_results'):
         col_left, col_right = st.columns(2)
         
         with col_left:
-            st.dataframe(
-                comparison_df.style.highlight_min(subset=['MAE', 'RMSE'], color='#2ed573')
-                    .highlight_max(subset=['R2'], color='#2ed573'),
-                use_container_width=True
-            )
+            st.markdown("##### 🏆 Model Leaderboard")
+            available_subsets_min = [c for c in ['MAE', 'RMSE', 'MAPE (%)'] if c in comparison_df.columns]
+            available_subsets_max = [c for c in ['Accuracy (%)'] if c in comparison_df.columns]
+
+            styler = comparison_df.style
+            if available_subsets_min:
+                styler = styler.highlight_min(subset=available_subsets_min, color='rgba(46, 213, 115, 0.3)')
+            if available_subsets_max:
+                styler = styler.highlight_max(subset=available_subsets_max, color='rgba(46, 213, 115, 0.4)')
+
+            st.dataframe(styler, use_container_width=True)
         
         with col_right:
-            fig_comp = go.Figure()
-            fig_comp.add_trace(go.Bar(
-                x=comparison_df['Model'], y=comparison_df['MAE'],
-                name='MAE', marker_color='#667eea'
-            ))
-            fig_comp.add_trace(go.Bar(
-                x=comparison_df['Model'], y=comparison_df['RMSE'],
-                name='RMSE', marker_color='#f5af19'
-            ))
-            fig_comp.update_layout(
-                title="Model Performance (Lower is Better)",
-                barmode='group',
-                plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-                font_color='white'
-            )
-            st.plotly_chart(fig_comp, use_container_width=True)
+            st.markdown("##### 📊 Accuracy Comparison")
+            if 'Accuracy (%)' in comparison_df.columns:
+                fig_comp = px.bar(
+                    comparison_df,
+                    x='Model', y='Accuracy (%)',
+                    color='Accuracy (%)',
+                    color_continuous_scale=['#f5576c', '#f093fb', '#2ed573'],
+                    text='Accuracy (%)'
+                )
+                fig_comp.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+                fig_comp.update_layout(
+                    yaxis=dict(range=[0, 110], title="Accuracy (%)"),
+                    xaxis_title="",
+                    plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+                    font_color='white',
+                    showlegend=False,
+                    margin=dict(t=20, b=20)
+                )
+                st.plotly_chart(fig_comp, use_container_width=True)
+            else:
+                fig_comp = go.Figure()
+                fig_comp.add_trace(go.Bar(x=comparison_df['Model'], y=comparison_df['MAE'], name='MAE', marker_color='#667eea'))
+                fig_comp.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color='white')
+                st.plotly_chart(fig_comp, use_container_width=True)
         
         # Model summary
         summary_str = get_model_summary(all_results)
